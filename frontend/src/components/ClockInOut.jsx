@@ -39,12 +39,22 @@ const ClockInOut = () => {
 
   const startCamera = async () => {
     try {
-      const stream = await FaceRecognitionService.startCamera(videoRef.current);
-      streamRef.current = stream;
+      // Set camera active first so video element renders
       setIsCameraActive(true);
-      detectFace();
+      
+      // Small delay to ensure video element is mounted
+      setTimeout(async () => {
+        try {
+          const stream = await FaceRecognitionService.startCamera(videoRef.current);
+          streamRef.current = stream;
+          detectFace();
+        } catch (error) {
+          setMessage({ type: 'error', text: 'Failed to access camera: ' + error.message });
+          setIsCameraActive(false);
+        }
+      }, 100);
     } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to access camera: ' + error.message });
+      setMessage({ type: 'error', text: 'Failed to start camera: ' + error.message });
     }
   };
 
